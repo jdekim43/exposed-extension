@@ -1,39 +1,42 @@
 package kr.jadekim.db.exposed
 
-import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.exceptions.EntityNotFoundException
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import java.util.concurrent.Executors
 import javax.sql.DataSource
+import kotlin.coroutines.coroutineContext
 
 open class ReadDB(
-    dataSource: DataSource
+    dataSource: DataSource,
+    threadCount: Int = 4
 ) {
 
-    private val database = Database.connect(dataSource)
+    protected val readDB = Database.connect(dataSource)
+    protected val dispatcher = Executors.newFixedThreadPool(threadCount).asCoroutineDispatcher()
 
-    suspend fun <T> read(statement: suspend Transaction.() -> T): T = try {
-        newSuspendedTransaction(Dispatchers.IO, db = database, statement = statement)
-    } catch (e: EntityNotFoundException) {
-        throw QueryEmptyResultException(e)
-    } catch (e: NoSuchElementException) {
-        throw QueryEmptyResultException(e)
+    open suspend fun <T> read(statement: suspend Transaction.() -> T): T {
+        return withContext(coroutineContext + dispatcher) {
+            newSuspendedTransaction(db = readDB, statement = statement)
+        }
     }
 }
 
 open class CrudDB(
     dataSource: DataSource,
-    readOnlyDataSource: DataSource
-) : ReadDB(readOnlyDataSource) {
+    readOnlyDataSource: DataSource,
+    threadCount: Int = 4
+) : ReadDB(readOnlyDataSource, threadCount) {
 
-    private val database = Database.connect(dataSource)
+    protected val crudDB = Database.connect(dataSource)
 
     suspend fun <T> execute(statement: suspend Transaction.() -> T): T {
-        return newSuspendedTransaction(Dispatchers.IO, db = database, statement = statement)
+        return withContext(coroutineContext + dispatcher) {
+            newSuspendedTransaction(db = crudDB, statement = statement)
+        }
     }
 }
 
 typealias DB = CrudDB
-
-class QueryEmptyResultException(cause: Throwable?) : RuntimeException(cause?.message, cause)

@@ -9,7 +9,7 @@ plugins {
 
 val artifactName = "exposed-extension"
 val artifactGroup = "kr.jadekim"
-val artifactVersion = "0.0.1"
+val artifactVersion = "0.0.2"
 group = artifactGroup
 version = artifactVersion
 
@@ -26,7 +26,9 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutineVersion")
 
-    api("org.jetbrains.exposed:exposed:$exposedVersion")
+    api("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    api("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    api("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 }
 
 tasks.withType<KotlinCompile> {
