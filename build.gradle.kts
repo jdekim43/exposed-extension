@@ -2,14 +2,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Date
 
 plugins {
-    kotlin("jvm") version "1.3.61"
+    kotlin("jvm") version "1.3.70"
     `maven-publish`
     id("com.jfrog.bintray") version "1.8.4"
 }
 
 val artifactName = "exposed-extension"
 val artifactGroup = "kr.jadekim"
-val artifactVersion = "0.0.2"
+val artifactVersion = "1.0.0"
 group = artifactGroup
 version = artifactVersion
 
@@ -28,7 +28,6 @@ dependencies {
 
     api("org.jetbrains.exposed:exposed-core:$exposedVersion")
     api("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    api("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 }
 
 tasks.withType<KotlinCompile> {

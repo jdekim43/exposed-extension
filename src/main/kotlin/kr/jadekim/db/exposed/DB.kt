@@ -26,7 +26,7 @@ open class ReadDB(
 
 open class CrudDB(
     dataSource: DataSource,
-    readOnlyDataSource: DataSource,
+    readOnlyDataSource: DataSource = dataSource,
     threadCount: Int = 4
 ) : ReadDB(readOnlyDataSource, threadCount) {
 
