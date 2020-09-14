@@ -7,7 +7,6 @@ import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.concurrent.Executors
 import javax.sql.DataSource
-import kotlin.coroutines.coroutineContext
 
 open class ReadDB(
     dataSource: DataSource,
@@ -18,7 +17,7 @@ open class ReadDB(
     protected val dispatcher = Executors.newFixedThreadPool(threadCount).asCoroutineDispatcher()
 
     open suspend fun <T> read(statement: suspend Transaction.() -> T): T {
-        return withContext(coroutineContext + dispatcher) {
+        return withContext(dispatcher) {
             newSuspendedTransaction(db = readDB, statement = statement)
         }
     }
@@ -33,7 +32,7 @@ open class CrudDB(
     protected val crudDB = Database.connect(dataSource)
 
     suspend fun <T> execute(statement: suspend Transaction.() -> T): T {
-        return withContext(coroutineContext + dispatcher) {
+        return withContext(dispatcher) {
             newSuspendedTransaction(db = crudDB, statement = statement)
         }
     }
