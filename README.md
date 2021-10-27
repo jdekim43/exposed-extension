@@ -1,4 +1,6 @@
 # exposed-extension
+Moved to https://github.com/jdekim43/jext
+
 Exposed 를 사용할 때 자주 사용하는 함수 라이브러리
 * Database class
 * DB functions (Exposed expression)
